@@ -55,9 +55,12 @@ class LibraryItem extends React.PureComponent {
             this.props.onMouseEnter(this.props.id);
             if (this.props.icons && this.props.icons.length) {
                 this.stopRotatingIcons();
-                this.setState({
-                    isRotatingIcon: true
-                }, this.startRotatingIcons);
+                this.setState(
+                    {
+                        isRotatingIcon: true
+                    },
+                    this.startRotatingIcons
+                );
             }
         }
     }
@@ -66,9 +69,12 @@ class LibraryItem extends React.PureComponent {
         if (!this.props.showPlayButton) {
             this.props.onMouseLeave(this.props.id);
             if (this.props.icons && this.props.icons.length) {
-                this.setState({
-                    isRotatingIcon: false
-                }, this.stopRotatingIcons);
+                this.setState(
+                    {
+                        isRotatingIcon: false
+                    },
+                    this.stopRotatingIcons
+                );
             }
         }
     }
@@ -88,28 +94,45 @@ class LibraryItem extends React.PureComponent {
         }
     }
     rotateIcon () {
-        const nextIconIndex = (this.state.iconIndex + 1) % this.props.icons.length;
+        const nextIconIndex =
+            (this.state.iconIndex + 1) % this.props.icons.length;
         this.setState({iconIndex: nextIconIndex});
     }
     curIconMd5 () {
         const iconMd5Prop = this.props.iconMd5;
-        if (this.props.icons &&
+        if (
+            this.props.icons &&
             this.state.isRotatingIcon &&
-            this.state.iconIndex < this.props.icons.length) {
+            this.state.iconIndex < this.props.icons.length
+        ) {
             const icon = this.props.icons[this.state.iconIndex] || {};
-            return icon.md5ext || // 3.0 library format
+            return (
+                icon.md5ext || // 3.0 library format
                 icon.baseLayerMD5 || // 2.0 library format, TODO GH-5084
-                iconMd5Prop;
+                iconMd5Prop
+            );
         }
         return iconMd5Prop;
     }
     render () {
         const iconMd5 = this.curIconMd5();
-        let assetHost = (window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.assetHost)
-                        || (window.scratchConfig && window.scratchConfig.assetCDN) || "https://cdn.assets.scratch.mit.edu"
-        let isSetAssetCDN = assetHost == "https://cdn.assets.scratch.mit.edu"?false:true;
-        const iconURL = iconMd5 ? assetHost + `/internalapi/asset/${iconMd5}` +  (isSetAssetCDN ? "":"/get/"):
-            this.props.iconRawURL;
+        // localStorage中存储的自定义图片url
+        const customIconUrl = window.localStorage.getItem(iconMd5);
+        const assetHost =
+            (window.scratchConfig &&
+                window.scratchConfig.assets &&
+                window.scratchConfig.assets.assetHost) ||
+            (window.scratchConfig && window.scratchConfig.assetCDN) ||
+            'https://cdn.assets.scratch.mit.edu';
+        const isSetAssetCDN =
+            assetHost !== 'https://cdn.assets.scratch.mit.edu';
+        const iconURL =
+            customIconUrl ||
+            (iconMd5 ?
+                `${assetHost}/internalapi/asset/${iconMd5}${
+                    isSetAssetCDN ? '' : '/get/'
+                }` :
+                this.props.iconRawURL);
         return (
             <LibraryItemComponent
                 bluetoothRequired={this.props.bluetoothRequired}
@@ -123,7 +146,9 @@ class LibraryItem extends React.PureComponent {
                 icons={this.props.icons}
                 id={this.props.id}
                 insetIconURL={this.props.insetIconURL}
-                internetConnectionRequired={this.props.internetConnectionRequired}
+                internetConnectionRequired={
+                    this.props.internetConnectionRequired
+                }
                 isPlaying={this.props.isPlaying}
                 name={this.props.name}
                 showPlayButton={this.props.showPlayButton}
@@ -143,10 +168,7 @@ class LibraryItem extends React.PureComponent {
 LibraryItem.propTypes = {
     bluetoothRequired: PropTypes.bool,
     collaborator: PropTypes.string,
-    description: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.node
-    ]),
+    description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     disabled: PropTypes.bool,
     extensionId: PropTypes.string,
     featured: PropTypes.bool,
@@ -163,10 +185,7 @@ LibraryItem.propTypes = {
     insetIconURL: PropTypes.string,
     internetConnectionRequired: PropTypes.bool,
     isPlaying: PropTypes.bool,
-    name: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.node
-    ]),
+    name: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     onMouseEnter: PropTypes.func.isRequired,
     onMouseLeave: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,

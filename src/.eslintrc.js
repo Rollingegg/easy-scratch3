@@ -16,7 +16,8 @@ module.exports = {
         'react/jsx-no-literals': 'error',
         'no-confusing-arrow': ['error', {
             'allowParens': true
-        }]
+        }],
+        'no-console': 0
     },
     settings: {
         react: {

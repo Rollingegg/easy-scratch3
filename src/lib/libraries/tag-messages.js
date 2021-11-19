@@ -125,5 +125,10 @@ export default defineMessages({
         defaultMessage: 'Letters',
         description: 'Tag for filtering a library for letters',
         id: 'gui.libraryTags.letters'
+    },
+    custom: {
+        defaultMessage: '自定义',
+        description: 'Tag for filtering a library for custom assets',
+        id: 'gui.libraryTags.custom'
     }
 });

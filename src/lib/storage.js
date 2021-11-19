@@ -19,7 +19,11 @@ class Storage extends ScratchStorage {
             this.getProjectUpdateConfig.bind(this)
         );
         this.addWebStore(
-            [this.AssetType.ImageVector, this.AssetType.ImageBitmap, this.AssetType.Sound],
+            [
+                this.AssetType.ImageVector,
+                this.AssetType.ImageBitmap,
+                this.AssetType.Sound
+            ],
             this.getAssetGetConfig.bind(this),
             // We set both the create and update configs to the same method because
             // storage assumes it should update if there is an assetId, but the
@@ -29,7 +33,8 @@ class Storage extends ScratchStorage {
         );
         this.addWebStore(
             [this.AssetType.Sound],
-            asset => `static/extension-assets/scratch3_music/${asset.assetId}.${asset.dataFormat}`
+            asset =>
+                `static/extension-assets/scratch3_music/${asset.assetId}.${asset.dataFormat}`
         );
     }
     setProjectHost (projectHost) {
@@ -54,16 +59,22 @@ class Storage extends ScratchStorage {
         this.assetHost = assetHost;
     }
     getAssetGetConfig (asset) {
-        let assetHost = (window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.assetHost)
-        || (window.scratchConfig && window.scratchConfig.assetCDN) || false
-                     
-        if(assetHost){
+        // 这里使用assetId对应的md5ext值，在localStorage中查找对应的url，如果不为null说明是自定义后端的图片
+        const customAssetUrl = window.localStorage.getItem(`${asset.assetId}.${asset.dataFormat}`);
+        if (customAssetUrl) return customAssetUrl;
+        const assetHost =
+            (window.scratchConfig &&
+                window.scratchConfig.assets &&
+                window.scratchConfig.assets.assetHost) ||
+            (window.scratchConfig && window.scratchConfig.assetCDN) ||
+            false;
+
+        if (assetHost) {
             return `${assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}`;
-        }else{
-            return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
         }
+        return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
     }
-        
+
     getAssetCreateConfig (asset) {
         return {
             // There is no such thing as updating assets, but storage assumes it
@@ -81,12 +92,14 @@ class Storage extends ScratchStorage {
     }
     cacheDefaultProject () {
         const defaultProjectAssets = defaultProject(this.translator);
-        defaultProjectAssets.forEach(asset => this.builtinHelper._store(
-            this.AssetType[asset.assetType],
-            this.DataFormat[asset.dataFormat],
-            asset.data,
-            asset.id
-        ));
+        defaultProjectAssets.forEach(asset =>
+            this.builtinHelper._store(
+                this.AssetType[asset.assetType],
+                this.DataFormat[asset.dataFormat],
+                asset.data,
+                asset.id
+            )
+        );
     }
 }
 

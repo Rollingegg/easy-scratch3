@@ -6,7 +6,7 @@ import VM from 'scratch-vm';
 
 import backdropTags from '../lib/libraries/backdrop-tags';
 import LibraryComponent from '../components/library/library.jsx';
-import {getBackdropLibrary} from '../lib/assets-api';
+import {getBackdropLibrary, getCustomBackdropLibrary} from '../lib/assets-api';
 
 const messages = defineMessages({
     libraryTitle: {
@@ -16,45 +16,65 @@ const messages = defineMessages({
     }
 });
 
-
 class BackdropLibrary extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, [
-            'handleItemSelect'
-        ]);
+        bindAll(this, ['handleItemSelect']);
         this.state = {
             data: [],
-            haveData:false
+            haveData: false
         };
     }
-    componentWillMount (){
-        let that = this
-        document.addEventListener("pushBackdropsLibrary",function(e){
-            console.log("pushBackdropsLibrary");
-            let data = e.detail.data.concat(that.state.data)
+    componentWillMount () {
+        const that = this;
+        document.addEventListener('pushBackdropsLibrary', e => {
+            console.log('pushBackdropsLibrary');
+            const data = e.detail.data.concat(that.state.data);
             that.setState({
-                data:data,
-                haveData:true
-            })
-        })
-        window.scratch.pushBackdropsLibrary = (data)=>{
-            var event = new CustomEvent('pushBackdropsLibrary', {"detail": {data: data}});
+                data: data,
+                haveData: true
+            });
+        });
+        window.scratch.pushBackdropsLibrary = data => {
+            const event = new CustomEvent('pushBackdropsLibrary', {
+                detail: {data: data}
+            });
             document.dispatchEvent(event);
         };
 
-        if(window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen){
-           if(!window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen()){
+        if (
+            window.scratchConfig &&
+            window.scratchConfig.assets &&
+            window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen
+        ) {
+            if (
+                !window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen()
+            ) {
                 return;
-           }
+            }
         }
-        getBackdropLibrary().then(data=>{
-            data = data.concat(this.state.data)
+        getBackdropLibrary().then(data => {
+            data = data.concat(this.state.data);
             this.setState({
-                data:data,
-                haveData:true
-            })
-        })
+                data: data,
+                haveData: true
+            });
+        });
+        // 在这里设置localStorage图片的真实url
+        getCustomBackdropLibrary().then(data => {
+            if (Array.isArray(data)){
+                data.forEach(asset => {
+                    // 设置为MiniIO的url+桶名称+机构id+md5ext
+                    window.localStorage.setItem(asset.md5ext,
+                        `${window.MINIIO_URL}/${window.ASSET_PREFIX}${asset.md5ext}`);
+                });
+                data = data.concat(this.state.data);
+                this.setState({
+                    data: data,
+                    haveData: true
+                });
+            }
+        });
     }
     handleItemSelect (item) {
         const vmBackdrop = {
@@ -68,7 +88,7 @@ class BackdropLibrary extends React.Component {
         this.props.vm.addBackdrop(item.md5ext, vmBackdrop);
     }
     render () {
-        return !this.state.haveData?"": (
+        return this.state.haveData ? (
             <LibraryComponent
                 data={this.state.data}
                 id="backdropLibrary"
@@ -77,7 +97,7 @@ class BackdropLibrary extends React.Component {
                 onItemSelected={this.handleItemSelect}
                 onRequestClose={this.props.onRequestClose}
             />
-        );
+        ) : ('');
     }
 }
 
