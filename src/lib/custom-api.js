@@ -1,8 +1,7 @@
 import xhr from 'xhr';
 
 export const customApi = (methodType, uri) => new Promise((resolve, reject) => {
-    const api = `/mock/${uri}`;
-    // const api = `${window.BASE_API_URL}/${uri}`;
+    const api = `${window.BASE_API_URL}/${uri}`;
     const token = window.getUserToken();
     xhr(
         {

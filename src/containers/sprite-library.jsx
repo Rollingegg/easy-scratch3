@@ -9,7 +9,7 @@ import spriteTags from '../lib/libraries/sprite-tags';
 
 import LibraryComponent from '../components/library/library.jsx';
 
-import {getSpriteLibrary} from '../lib/assets-api';
+import {getCustomSpriteLibrary, getSpriteLibrary} from '../lib/assets-api';
 
 const messages = defineMessages({
     libraryTitle: {
@@ -27,36 +27,64 @@ class SpriteLibrary extends React.PureComponent {
         ]);
         this.state = {
             data: [],
-            haveData:false
+            haveData: false
         };
     }
     componentWillMount (){
-        let that = this
-        document.addEventListener("pushSpriteLibrary",function(e){
-            console.log("pushSpriteLibrary");
-            let data = e.detail.data.concat(that.state.data)
+        const that = this;
+        document.addEventListener('pushSpriteLibrary', e => {
+            console.log('pushSpriteLibrary');
+            const data = e.detail.data.concat(that.state.data);
             that.setState({
-                data:data,
-                haveData:true
-            })
-        })
-        window.scratch.pushSpriteLibrary = (data)=>{
-            var event = new CustomEvent('pushSpriteLibrary', {"detail": {data: data}});
+                data: data,
+                haveData: true
+            });
+        });
+        window.scratch.pushSpriteLibrary = data => {
+            const event = new CustomEvent('pushSpriteLibrary', {detail: {data: data}});
             document.dispatchEvent(event);
         };
 
-        if(window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.handleBeforeSpriteLibraryOpen){
-           if(!window.scratchConfig.assets.handleBeforeSpriteLibraryOpen()){
+        if (window.scratchConfig && window.scratchConfig.assets &&
+            window.scratchConfig.assets.handleBeforeSpriteLibraryOpen){
+            if (!window.scratchConfig.assets.handleBeforeSpriteLibraryOpen()){
                 return;
-           }
+            }
         }
-        getSpriteLibrary().then(data=>{
-            data = data.concat(this.state.data)
+        getSpriteLibrary().then(data => {
+            data = data.concat(this.state.data);
             this.setState({
-                data:data,
-                haveData:true
-            })
-        })
+                data: data,
+                haveData: true
+            });
+        });
+        // 在这里设置localStorage图片的真实url
+        getCustomSpriteLibrary().then(data => {
+            if (Array.isArray(data)){
+                const sprites = [];
+                // 补充角色缺省的字段
+                data.forEach(sprite => {
+                    const costums = sprite.costums;
+                    costums.forEach(asset => {
+                        window.localStorage.setItem(asset.md5ext,
+                            `${window.MINIIO_URL}/${window.ASSET_PREFIX}${asset.md5ext}`);
+                    });
+                    sprites.push({
+                        name: sprite.name,
+                        tags: sprite.tags,
+                        isStage: false,
+                        variables: {},
+                        costums,
+                        sounds: [],
+                        blocks: {}
+                    });
+                });
+                this.setState({
+                    data: sprites.concat(this.state.data),
+                    haveData: true
+                });
+            }
+        });
     }
     handleItemSelect (item) {
         // Randomize position of library sprite
@@ -66,7 +94,7 @@ class SpriteLibrary extends React.PureComponent {
         });
     }
     render () {
-        return !this.state.haveData?"": (
+        return this.state.haveData ? (
             <LibraryComponent
                 data={this.state.data}
                 id="spriteLibrary"
@@ -75,7 +103,7 @@ class SpriteLibrary extends React.PureComponent {
                 onItemSelected={this.handleItemSelect}
                 onRequestClose={this.props.onRequestClose}
             />
-        );
+        ) : '';
     }
 }
 

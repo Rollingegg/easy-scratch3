@@ -64,7 +64,6 @@ class BackdropLibrary extends React.Component {
         getCustomBackdropLibrary().then(data => {
             if (Array.isArray(data)){
                 data.forEach(asset => {
-                    // 设置为MiniIO的url+桶名称+机构id+md5ext
                     window.localStorage.setItem(asset.md5ext,
                         `${window.MINIIO_URL}/${window.ASSET_PREFIX}${asset.md5ext}`);
                 });

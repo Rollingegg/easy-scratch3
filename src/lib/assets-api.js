@@ -140,10 +140,25 @@ const getCustomBackdropLibrary = () =>
         }, reject);
     });
 
+// 获取自定义角色库
+const getCustomSpriteLibrary = () =>
+    new Promise((resolve, reject) => {
+        customApi('GET', '/sprites').then(body => {
+            if (body.hasOwnProperty('success') && body.success) {
+                const data = body.data;
+                return resolve(
+                    Array.isArray(data) ? data : JSON.parse(data)
+                );
+            }
+            return reject(new Error(body.msg));
+        }, reject);
+    });
+
 export {
     getSpriteLibrary,
     getCostumeLibrary,
     getBackdropLibrary,
     getSoundLibrary,
-    getCustomBackdropLibrary
+    getCustomBackdropLibrary,
+    getCustomSpriteLibrary
 };
