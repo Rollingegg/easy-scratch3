@@ -65,7 +65,7 @@ class BackdropLibrary extends React.Component {
             if (Array.isArray(data)){
                 data.forEach(asset => {
                     window.localStorage.setItem(asset.md5ext,
-                        `${window.MINIIO_URL}/${window.ASSET_PREFIX}${asset.md5ext}`);
+                        `${window.__CONFIG.MINIO_URL}/${window.__CONFIG.ASSET_PREFIX}${asset.md5ext}`);
                 });
                 data = data.concat(this.state.data);
                 this.setState({

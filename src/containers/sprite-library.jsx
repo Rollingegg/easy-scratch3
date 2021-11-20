@@ -64,17 +64,17 @@ class SpriteLibrary extends React.PureComponent {
                 const sprites = [];
                 // 补充角色缺省的字段
                 data.forEach(sprite => {
-                    const costums = sprite.costums;
-                    costums.forEach(asset => {
+                    const costumes = sprite.costumes;
+                    costumes.forEach(asset => {
                         window.localStorage.setItem(asset.md5ext,
-                            `${window.MINIIO_URL}/${window.ASSET_PREFIX}${asset.md5ext}`);
+                            `${window.__CONFIG.MINIO_URL}/${window.__CONFIG.ASSET_PREFIX}${asset.md5ext}`);
                     });
                     sprites.push({
                         name: sprite.name,
                         tags: sprite.tags,
                         isStage: false,
                         variables: {},
-                        costums,
+                        costumes,
                         sounds: [],
                         blocks: {}
                     });
