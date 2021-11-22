@@ -14,7 +14,7 @@ import soundTags from '../lib/libraries/sound-tags';
 
 import {connect} from 'react-redux';
 
-import {getSoundLibrary} from '../lib/assets-api';
+import {getCustomSoundLibrary, getSoundLibrary} from '../lib/assets-api';
 
 const messages = defineMessages({
     libraryTitle: {
@@ -53,36 +53,53 @@ class SoundLibrary extends React.PureComponent {
         this.handleStop = null;
         this.state = {
             data: [],
-            haveData:false
+            haveData: false
         };
     }
-    componentWillMount(){
-        let that = this
-        document.addEventListener("pushSoundsLibrary",function(e){
-            console.log("pushSoundsLibrary");
-            let data = e.detail.data.concat(that.state.data)
+    componentWillMount (){
+        const that = this;
+        document.addEventListener('pushSoundsLibrary', e => {
+            console.log('pushSoundsLibrary');
+            const data = e.detail.data.concat(that.state.data);
             that.setState({
-                data:data,
-                haveData:true
-            })
-        })
-        window.scratch.pushSoundsLibrary = (data)=>{
-            var event = new CustomEvent('pushSoundsLibrary', {"detail": {data: data}});
+                data: data,
+                haveData: true
+            });
+        });
+        window.scratch.pushSoundsLibrary = data => {
+            const event = new CustomEvent('pushSoundsLibrary', {detail: {data: data}});
             document.dispatchEvent(event);
         };
 
-        if(window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.handleBeforeSoundLibraryOpen){
-           if(!window.scratchConfig.assets.handleBeforeSoundLibraryOpen()){
+        if (window.scratchConfig &&
+            window.scratchConfig.assets &&
+            window.scratchConfig.assets.handleBeforeSoundLibraryOpen){
+            if (!window.scratchConfig.assets.handleBeforeSoundLibraryOpen()){
                 return;
-           }
+            }
         }
-        getSoundLibrary().then(data=>{
-            data = data.concat(this.state.data)
+        getSoundLibrary().then(data => {
+            data = data.concat(this.state.data);
             this.setState({
-                data:data,
-                haveData:true
-            })
-        })
+                data: data,
+                haveData: true
+            });
+        });
+
+        // 在这里设置localStorage声音的真实url
+        getCustomSoundLibrary().then(data => {
+            if (Array.isArray(data)){
+                data.forEach(asset => {
+                    window.localStorage.setItem(asset.md5ext,
+                        `${window.__CONFIG.MINIO_URL}/${window.__CONFIG.ASSET_PREFIX}${asset.md5ext}`);
+                });
+                data = data.concat(this.state.data);
+                this.setState({
+                    data: data,
+                    haveData: true
+                });
+            }
+        });
     }
     componentDidMount () {
         this.audioEngine = new AudioEngine();
@@ -178,7 +195,7 @@ class SoundLibrary extends React.PureComponent {
             this.props.onNewSound();
         });
     }
-    getSoundLibraryThumbnailData(data){
+    getSoundLibraryThumbnailData (data){
         // @todo need to use this hack to avoid library using md5 for image
         return data.map(sound => {
             const {
@@ -193,7 +210,7 @@ class SoundLibrary extends React.PureComponent {
         });
     }
     render () {
-        return !this.state.haveData ? "": (
+        return this.state.haveData ? (
             <LibraryComponent
                 showPlayButton
                 data={this.getSoundLibraryThumbnailData(this.state.data)}
@@ -206,7 +223,7 @@ class SoundLibrary extends React.PureComponent {
                 onItemSelected={this.handleItemSelected}
                 onRequestClose={this.props.onRequestClose}
             />
-        );
+        ) : '';
     }
 }
 

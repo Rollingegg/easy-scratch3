@@ -127,8 +127,8 @@ class LibraryItem extends React.PureComponent {
         const isSetAssetCDN =
             assetHost !== 'https://cdn.assets.scratch.mit.edu';
         const iconURL =
-            customIconUrl ||
             (iconMd5 ?
+                customIconUrl ||
                 `${assetHost}/internalapi/asset/${iconMd5}${
                     isSetAssetCDN ? '' : '/get/'
                 }` :

@@ -12,6 +12,7 @@ import TagButton from '../../containers/tag-button.jsx';
 import Spinner from '../spinner/spinner.jsx';
 
 import styles from './library.css';
+import {customApi} from '../../lib/custom-api.js';
 
 const messages = defineMessages({
     filterPlaceholder: {
@@ -49,6 +50,19 @@ class LibraryComponent extends React.Component {
             selectedTag: ALL_TAG.tag,
             loaded: false
         };
+        this.tagsDom = null;
+        // 目前版本React:16.2，而createRef()需要react>=16.3
+        // this.tagsRef = React.createRef();
+        // 按照官方文档推荐使用回调的形式
+        this.setTagsRef = element => {
+            this.tagsDom = element;
+        };
+        this.changeCustomTagName = tagName => {
+            if (this.tagsDom){
+                // Magic修改第二个标签即custom标签的文字 0.0
+                this.tagsDom.children[1].children[0].children[0].innerText = tagName;
+            }
+        };
     }
     componentDidMount () {
         // Allow the spinner to display before loading the content
@@ -56,6 +70,14 @@ class LibraryComponent extends React.Component {
             this.setState({loaded: true});
         });
         if (this.props.setStopHandler) this.props.setStopHandler(this.handlePlayingEnd);
+        // 修改为自定义标签
+        customApi('GET', '/label').then(res => {
+            this.changeCustomTagName(res.data);
+        })
+            .catch(err => {
+                console.log(err);
+                this.changeCustomTagName('机构');
+            });
     }
     componentDidUpdate (prevProps, prevState) {
         if (prevState.filterQuery !== this.state.filterQuery ||
@@ -184,7 +206,10 @@ class LibraryComponent extends React.Component {
                             <Divider className={classNames(styles.filterBarItem, styles.divider)} />
                         )}
                         {this.props.tags &&
-                            <div className={styles.tagWrapper}>
+                            <div
+                                className={styles.tagWrapper}
+                                ref={this.setTagsRef}
+                            >
                                 {tagListPrefix.concat(this.props.tags).map((tagProps, id) => (
                                     <TagButton
                                         active={this.state.selectedTag === tagProps.tag.toLowerCase()}

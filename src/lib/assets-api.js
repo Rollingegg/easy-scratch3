@@ -153,6 +153,20 @@ const getCustomSpriteLibrary = () =>
             return reject(new Error(body.msg));
         }, reject);
     });
+    
+// 获取自定义声音库
+const getCustomSoundLibrary = () =>
+    new Promise((resolve, reject) => {
+        customApi('GET', '/sounds').then(body => {
+            if (body.hasOwnProperty('success') && body.success) {
+                const data = body.data;
+                return resolve(
+                    Array.isArray(data) ? data : JSON.parse(data)
+                );
+            }
+            return reject(new Error(body.msg));
+        }, reject);
+    });
 
 export {
     getSpriteLibrary,
@@ -160,5 +174,6 @@ export {
     getBackdropLibrary,
     getSoundLibrary,
     getCustomBackdropLibrary,
-    getCustomSpriteLibrary
+    getCustomSpriteLibrary,
+    getCustomSoundLibrary
 };
