@@ -148,6 +148,7 @@ class SoundLibrary extends React.PureComponent {
         const md5ext = soundItem._md5;
         const idParts = md5ext.split('.');
         const md5 = idParts[0];
+        const ext = idParts[1];
         const vm = this.props.vm;
 
         // In case enter is called twice without a corresponding leave
@@ -156,7 +157,7 @@ class SoundLibrary extends React.PureComponent {
 
         // Save the promise so code to stop the sound may queue the stop
         // instruction after the play instruction.
-        this.playingSoundPromise = vm.runtime.storage.load(vm.runtime.storage.AssetType.Sound, md5)
+        this.playingSoundPromise = vm.runtime.storage.load(vm.runtime.storage.AssetType.Sound, md5, ext)
             .then(soundAsset => {
                 const sound = {
                     md5: md5ext,
@@ -164,6 +165,7 @@ class SoundLibrary extends React.PureComponent {
                     format: soundItem.format,
                     data: soundAsset.data
                 };
+                // console.log('sound', sound);
                 return this.audioEngine.decodeSoundPlayer(sound);
             })
             .then(soundPlayer => {
