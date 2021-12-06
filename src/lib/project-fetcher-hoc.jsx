@@ -50,6 +50,11 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 this.props.setProjectId(props.projectId.toString());
             }
         }
+        componentDidMount (){
+            window.scratch.setProjectId = projectId => {
+                this.props.setProjectId(projectId.toString());
+            };
+        }
         componentDidUpdate (prevProps) {
             if (prevProps.projectHost !== this.props.projectHost) {
                 storage.setProjectHost(this.props.projectHost);
@@ -58,16 +63,17 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 storage.setAssetHost(this.props.assetHost);
             }
             if (this.props.isFetchingWithId && !prevProps.isFetchingWithId) {
-                if('defaultProjectURL' in window.scratchConfig){
-                    let that = this;
-                    fetch(window.scratchConfig.defaultProjectURL).then(r => r.blob()).then(blob => {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            that.props.onFetchedProjectData(reader.result, that.props.loadingState);
-                        };
-                        reader.readAsArrayBuffer(blob);
-                    });
-                }else{
+                if ('defaultProjectURL' in window.scratchConfig){
+                    const that = this;
+                    fetch(window.scratchConfig.defaultProjectURL).then(r => r.blob())
+                        .then(blob => {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                that.props.onFetchedProjectData(reader.result, that.props.loadingState);
+                            };
+                            reader.readAsArrayBuffer(blob);
+                        });
+                } else {
                     this.fetchProject(this.props.reduxProjectId, this.props.loadingState);
                 }
             }
@@ -141,9 +147,9 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         setProjectId: PropTypes.func
     };
     ProjectFetcherComponent.defaultProps = {
-        assetHost: (window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.assetHost)
-                    || (window.scratchConfig && window.scratchConfig.assetCDN) 
-                    ||'https://assets.scratch.mit.edu',
+        assetHost: (window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.assetHost) ||
+                    (window.scratchConfig && window.scratchConfig.assetCDN) ||
+                    'https://assets.scratch.mit.edu',
         projectHost: 'https://projects.scratch.mit.edu'
     };
 

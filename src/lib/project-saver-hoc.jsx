@@ -66,6 +66,12 @@ const ProjectSaverHOC = function (WrappedComponent) {
             this.props.onSetProjectThumbnailer(this.getProjectThumbnail);
             this.props.onSetProjectSaver(this.tryToAutoSave);
         }
+        componentDidMount (){
+            window.scratch.onSetProjectUnchanged = callback => {
+                this.props.onSetProjectUnchanged();
+                callback();
+            };
+        }
         componentDidUpdate (prevProps) {
             if (!this.props.isAnyCreatingNewState && prevProps.isAnyCreatingNewState) {
                 this.reportTelemetryEvent('projectWasCreated');
