@@ -17,6 +17,10 @@ class StageHeader extends React.Component {
         bindAll(this, [
             'handleKeyPress'
         ]);
+        if (props.isPlayerOnly && window.scratchConfig && window.scratchConfig.stageArea &&
+            window.scratchConfig.stageArea.fullscreen){
+            props.onSetStageFull(true);
+        }
     }
     componentDidMount () {
         document.addEventListener('keydown', this.handleKeyPress);
@@ -62,13 +66,15 @@ const mapDispatchToProps = dispatch => ({
     onSetStageLarge: () => dispatch(setStageSize(STAGE_SIZE_MODES.large)),
     onSetStageSmall: () => dispatch(setStageSize(STAGE_SIZE_MODES.small)),
     onSetStageFull: () => {
-        if(window.scratchConfig && window.scratchConfig.stageArea && window.scratchConfig.stageArea.fullscreenButton.handleBeforeSetStageFull()){
-            dispatch(setFullScreen(true))
+        if (window.scratchConfig && window.scratchConfig.stageArea &&
+            window.scratchConfig.stageArea.fullscreenButton.handleBeforeSetStageFull()){
+            dispatch(setFullScreen(true));
         }
     },
     onSetStageUnFull: () => {
-        if(window.scratchConfig && window.scratchConfig.stageArea && window.scratchConfig.stageArea.fullscreenButton.handleBeforeSetStageUnFull()){
-            dispatch(setFullScreen(false))
+        if (window.scratchConfig && window.scratchConfig.stageArea &&
+            window.scratchConfig.stageArea.fullscreenButton.handleBeforeSetStageUnFull()){
+            dispatch(setFullScreen(false));
         }
     }
 });
