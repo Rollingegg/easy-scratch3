@@ -1,7 +1,12 @@
 import classNames from 'classnames';
 import {connect} from 'react-redux';
 import {compose} from 'redux';
-import {defineMessages, FormattedMessage, injectIntl, intlShape} from 'react-intl';
+import {
+    defineMessages,
+    FormattedMessage,
+    injectIntl,
+    intlShape
+} from 'react-intl';
 import PropTypes from 'prop-types';
 import bindAll from 'lodash.bindall';
 import bowser from 'bowser';
@@ -11,21 +16,18 @@ import VM from 'scratch-vm';
 
 import Box from '../box/box.jsx';
 import Button from '../button/button.jsx';
-import CommunityButton from './community-button.jsx';
 import ShareButton from './share-button.jsx';
 import CustomButton from './custom-button.jsx';
 import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
 import Divider from '../divider/divider.jsx';
 import LanguageSelector from '../../containers/language-selector.jsx';
 import SaveStatus from './save-status.jsx';
-import SBFileUploader from '../../containers/sb-file-uploader.jsx';
 import ProjectWatcher from '../../containers/project-watcher.jsx';
 import MenuBarMenu from './menu-bar-menu.jsx';
 import {MenuItem, MenuSection} from '../menu/menu.jsx';
 import ProjectTitleInput from './project-title-input.jsx';
 import AuthorInfo from './author-info.jsx';
 import AccountNav from '../../containers/account-nav.jsx';
-import LoginDropdown from './login-dropdown.jsx';
 import SB3Downloader from '../../containers/sb3-downloader.jsx';
 import DeletionRestorer from '../../containers/deletion-restorer.jsx';
 import TurboMode from '../../containers/turbo-mode.jsx';
@@ -100,11 +102,7 @@ const MenuBarItemTooltip = ({
     place = 'bottom'
 }) => {
     if (enable) {
-        return (
-            <React.Fragment>
-                {children}
-            </React.Fragment>
-        );
+        return <React.Fragment>{children}</React.Fragment>;
     }
     return (
         <ComingSoonTooltip
@@ -117,7 +115,6 @@ const MenuBarItemTooltip = ({
         </ComingSoonTooltip>
     );
 };
-
 
 MenuBarItemTooltip.propTypes = {
     children: PropTypes.node,
@@ -175,6 +172,15 @@ class MenuBar extends React.Component {
             'getSaveToComputerHandler',
             'restoreOptionMessage'
         ]);
+        this.handleLogoLoadingError = e => {
+            e.target.onerror = null;
+            let url = this.props.logo;
+            const defaultUrl = window.scratchConfig.logo.defaultUrl;
+            if (defaultUrl) {
+                url = defaultUrl;
+            }
+            e.target.src = url;
+        };
     }
     componentDidMount () {
         document.addEventListener('keydown', this.handleKeyPress);
@@ -183,8 +189,8 @@ class MenuBar extends React.Component {
         document.removeEventListener('keydown', this.handleKeyPress);
     }
     handleClickNew () {
-        if(window.scratchConfig && window.scratchConfig.menuBar.newButton){
-            if(!window.scratchConfig.menuBar.newButton.handleBefore()){
+        if (window.scratchConfig && window.scratchConfig.menuBar.newButton) {
+            if (!window.scratchConfig.menuBar.newButton.handleBefore()) {
                 return;
             }
         }
@@ -198,7 +204,9 @@ class MenuBar extends React.Component {
         );
         this.props.onRequestCloseFile();
         if (readyToReplaceProject) {
-            this.props.onClickNew(this.props.canSave && this.props.canCreateNew);
+            this.props.onClickNew(
+                this.props.canSave && this.props.canCreateNew
+            );
         }
         this.props.onRequestCloseFile();
     }
@@ -224,10 +232,12 @@ class MenuBar extends React.Component {
     }
     handleClickShare (waitForUpdate) {
         if (!this.props.isShared) {
-            if (this.props.canShare) { // save before transitioning to project page
+            if (this.props.canShare) {
+                // save before transitioning to project page
                 this.props.onShare();
             }
-            if (this.props.canSave) { // save before transitioning to project page
+            if (this.props.canSave) {
+                // save before transitioning to project page
                 this.props.autoUpdateProject();
                 waitForUpdate(true); // queue the transition to project page
             } else {
@@ -250,15 +260,24 @@ class MenuBar extends React.Component {
     }
     getSaveToComputerHandler (downloadProjectCallback) {
         return () => {
-            if(window.scratchConfig && window.scratchConfig.menuBar.saveFileButton){
-                if(!window.scratchConfig.menuBar.saveFileButton.handleBefore()){
-                    return
+            if (
+                window.scratchConfig &&
+                window.scratchConfig.menuBar.saveFileButton
+            ) {
+                if (
+                    !window.scratchConfig.menuBar.saveFileButton.handleBefore()
+                ) {
+                    return;
                 }
             }
             this.props.onRequestCloseFile();
             downloadProjectCallback();
             if (this.props.onProjectTelemetryEvent) {
-                const metadata = collectMetadata(this.props.vm, this.props.projectTitle, this.props.locale);
+                const metadata = collectMetadata(
+                    this.props.vm,
+                    this.props.projectTitle,
+                    this.props.locale
+                );
                 this.props.onProjectTelemetryEvent('projectDidSave', metadata);
             }
         };
@@ -271,29 +290,37 @@ class MenuBar extends React.Component {
     restoreOptionMessage (deletedItem) {
         switch (deletedItem) {
         case 'Sprite':
-            return (<FormattedMessage
-                defaultMessage="Restore Sprite"
-                description="Menu bar item for restoring the last deleted sprite."
-                id="gui.menuBar.restoreSprite"
-            />);
+            return (
+                <FormattedMessage
+                    defaultMessage="Restore Sprite"
+                    description="Menu bar item for restoring the last deleted sprite."
+                    id="gui.menuBar.restoreSprite"
+                />
+            );
         case 'Sound':
-            return (<FormattedMessage
-                defaultMessage="Restore Sound"
-                description="Menu bar item for restoring the last deleted sound."
-                id="gui.menuBar.restoreSound"
-            />);
+            return (
+                <FormattedMessage
+                    defaultMessage="Restore Sound"
+                    description="Menu bar item for restoring the last deleted sound."
+                    id="gui.menuBar.restoreSound"
+                />
+            );
         case 'Costume':
-            return (<FormattedMessage
-                defaultMessage="Restore Costume"
-                description="Menu bar item for restoring the last deleted costume."
-                id="gui.menuBar.restoreCostume"
-            />);
+            return (
+                <FormattedMessage
+                    defaultMessage="Restore Costume"
+                    description="Menu bar item for restoring the last deleted costume."
+                    id="gui.menuBar.restoreCostume"
+                />
+            );
         default: {
-            return (<FormattedMessage
-                defaultMessage="Restore"
-                description="Menu bar item for restoring the last deleted item in its disabled state." /* eslint-disable-line max-len */
-                id="gui.menuBar.restore"
-            />);
+            return (
+                <FormattedMessage
+                    defaultMessage="Restore"
+                    description="Menu bar item for restoring the last deleted item in its disabled state." /* eslint-disable-line max-len */
+                    id="gui.menuBar.restore"
+                />
+            );
         }
         }
     }
@@ -326,17 +353,17 @@ class MenuBar extends React.Component {
                     place={this.props.isRtl ? 'right' : 'left'}
                     onRequestClose={this.props.onRequestCloseAbout}
                 >
-                    {
-                        onClickAbout.map(itemProps => (
-                            <MenuItem
-                                key={itemProps.title}
-                                isRtl={this.props.isRtl}
-                                onClick={this.wrapAboutMenuCallback(itemProps.onClick)}
-                            >
-                                {itemProps.title}
-                            </MenuItem>
-                        ))
-                    }
+                    {onClickAbout.map(itemProps => (
+                        <MenuItem
+                            key={itemProps.title}
+                            isRtl={this.props.isRtl}
+                            onClick={this.wrapAboutMenuCallback(
+                                itemProps.onClick
+                            )}
+                        >
+                            {itemProps.title}
+                        </MenuItem>
+                    ))}
                 </MenuBarMenu>
             </div>
         );
@@ -378,10 +405,7 @@ class MenuBar extends React.Component {
         );
         const remixButton = (
             <Button
-                className={classNames(
-                    styles.menuBarButton,
-                    styles.remixButton
-                )}
+                className={classNames(styles.menuBarButton, styles.remixButton)}
                 iconClassName={styles.remixButtonIcon}
                 iconSrc={remixIcon}
                 onClick={this.handleClickRemix}
@@ -391,47 +415,77 @@ class MenuBar extends React.Component {
         );
         return (
             <Box
-                className={classNames(
-                    this.props.className,
-                    styles.menuBar
-                )}
-                style={window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.style}
+                className={classNames(this.props.className, styles.menuBar)}
+                style={
+                    window.scratchConfig &&
+                    window.scratchConfig.menuBar &&
+                    window.scratchConfig.menuBar.style
+                }
             >
                 <div className={styles.mainMenu}>
                     <div className={styles.fileGroup}>
-                        {(window.scratchConfig.logo && window.scratchConfig.logo.show) && (
+                        {window.scratchConfig.logo &&
+                            window.scratchConfig.logo.show && (
                             <div className={classNames(styles.menuBarItem)}>
-                            <img
-                                alt="Scratch"
-                                className={classNames(styles.scratchLogo, {
-                                    [styles.clickable]: typeof this.props.onClickLogo !== 'undefined'
-                                })}
-                                draggable={false}
-                                src={window.scratchConfig.logo.url || this.props.logo}
-                                onClick={window.scratchConfig.logo.handleClickLogo}
-                            />
-                        </div>
-                        )}
-                        {(this.props.canChangeLanguage) && (<div
-                            className={classNames(styles.menuBarItem, styles.hoverable, styles.languageMenu)}
-                        >
-                            <div>
                                 <img
-                                    className={styles.languageIcon}
-                                    src={languageIcon}
-                                />
-                                <img
-                                    className={styles.languageCaret}
-                                    src={dropdownCaret}
+                                    alt="Scratch"
+                                    className={classNames(
+                                        styles.scratchLogo,
+                                        {
+                                            [styles.clickable]:
+                                                    typeof this.props
+                                                        .onClickLogo !==
+                                                    'undefined'
+                                        }
+                                    )}
+                                    draggable={false}
+                                    src={
+                                        window.scratchConfig.logo.url ||
+                                            this.props.logo
+                                    }
+                                    onClick={
+                                        window.scratchConfig.logo
+                                            .handleClickLogo
+                                    }
+                                    onError={this.handleLogoLoadingError}
                                 />
                             </div>
-                            <LanguageSelector label={this.props.intl.formatMessage(ariaMessages.language)} />
-                        </div>)}
-                        {(this.props.canManageFiles) && (
+                        )}
+                        {this.props.canChangeLanguage && (
                             <div
-                                className={classNames(styles.menuBarItem, styles.hoverable, {
-                                    [styles.active]: this.props.fileMenuOpen
-                                })}
+                                className={classNames(
+                                    styles.menuBarItem,
+                                    styles.hoverable,
+                                    styles.languageMenu
+                                )}
+                            >
+                                <div>
+                                    <img
+                                        className={styles.languageIcon}
+                                        src={languageIcon}
+                                    />
+                                    <img
+                                        className={styles.languageCaret}
+                                        src={dropdownCaret}
+                                    />
+                                </div>
+                                <LanguageSelector
+                                    label={this.props.intl.formatMessage(
+                                        ariaMessages.language
+                                    )}
+                                />
+                            </div>
+                        )}
+                        {this.props.canManageFiles && (
+                            <div
+                                className={classNames(
+                                    styles.menuBarItem,
+                                    styles.hoverable,
+                                    {
+                                        [styles.active]:
+                                            this.props.fileMenuOpen
+                                    }
+                                )}
                                 onMouseUp={this.props.onClickFile}
                             >
                                 <FormattedMessage
@@ -443,71 +497,115 @@ class MenuBar extends React.Component {
                                     className={classNames(styles.menuBarMenu)}
                                     open={this.props.fileMenuOpen}
                                     place={this.props.isRtl ? 'left' : 'right'}
-                                    onRequestClose={this.props.onRequestCloseFile}
+                                    onRequestClose={
+                                        this.props.onRequestCloseFile
+                                    }
                                 >
                                     <MenuSection>
-                                        {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.newButton && 
-                                            window.scratchConfig.menuBar.newButton.show) && (
+                                        {window.scratchConfig &&
+                                        window.scratchConfig.menuBar &&
+                                        window.scratchConfig.menuBar
+                                            .newButton &&
+                                        window.scratchConfig.menuBar
+                                            .newButton.show && (
                                             <MenuItem
                                                 isRtl={this.props.isRtl}
                                                 onClick={this.handleClickNew}
-                                            >
-                                                {newProjectMessage}
-                                            </MenuItem>
+                                            >{newProjectMessage}</MenuItem>
                                         )}
                                     </MenuSection>
-                                    {(this.props.canSave || this.props.canCreateCopy || this.props.canRemix) && (
+                                    {(this.props.canSave ||
+                                        this.props.canCreateCopy ||
+                                        this.props.canRemix) && (
                                         <MenuSection>
                                             {this.props.canSave && (
-                                                <MenuItem onClick={this.handleClickSave}>
+                                                <MenuItem
+                                                    onClick={
+                                                        this.handleClickSave
+                                                    }
+                                                >
                                                     {saveNowMessage}
                                                 </MenuItem>
                                             )}
                                             {this.props.canCreateCopy && (
-                                                <MenuItem onClick={this.handleClickSaveAsCopy}>
+                                                <MenuItem
+                                                    onClick={
+                                                        this
+                                                            .handleClickSaveAsCopy
+                                                    }
+                                                >
                                                     {createCopyMessage}
                                                 </MenuItem>
                                             )}
                                             {this.props.canRemix && (
-                                                <MenuItem onClick={this.handleClickRemix}>
+                                                <MenuItem
+                                                    onClick={
+                                                        this.handleClickRemix
+                                                    }
+                                                >
                                                     {remixMessage}
                                                 </MenuItem>
                                             )}
                                         </MenuSection>
                                     )}
                                     <MenuSection>
-                                        {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.loadFileButton && 
-                                        window.scratchConfig.menuBar.loadFileButton.show) && (
+                                        {window.scratchConfig &&
+                                        window.scratchConfig.menuBar &&
+                                        window.scratchConfig.menuBar
+                                            .loadFileButton &&
+                                        window.scratchConfig.menuBar
+                                            .loadFileButton.show && (
                                             <MenuItem
-                                                onClick={this.props.onStartSelectingFileUpload}
+                                                onClick={
+                                                    this.props
+                                                        .onStartSelectingFileUpload
+                                                }
                                             >
-                                                {this.props.intl.formatMessage(sharedMessages.loadFromComputerTitle)}
+                                                {this.props.intl.formatMessage(
+                                                    sharedMessages.loadFromComputerTitle
+                                                )}
                                             </MenuItem>
                                         )}
-                                        {
-                                            (window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.saveFileButton && 
-                                                window.scratchConfig.menuBar.saveFileButton.show) && (
-                                            <SB3Downloader>{(className, downloadProjectCallback) => (
-                                                <MenuItem
-                                                    className={className}
-                                                    onClick={this.getSaveToComputerHandler(downloadProjectCallback)}
-                                                >
-                                                    <FormattedMessage
-                                                        defaultMessage="Save to your computer"
-                                                        description="Menu bar item for downloading a project to your computer" // eslint-disable-line max-len
-                                                        id="gui.menuBar.downloadToComputer"
-                                                    />
-                                                </MenuItem>
-                                            )}</SB3Downloader>
+                                        {window.scratchConfig &&
+                                        window.scratchConfig.menuBar &&
+                                        window.scratchConfig.menuBar
+                                            .saveFileButton &&
+                                        window.scratchConfig.menuBar
+                                            .saveFileButton.show && (
+                                            <SB3Downloader>
+                                                {(
+                                                    className,
+                                                    downloadProjectCallback
+                                                ) => (
+                                                    <MenuItem
+                                                        className={
+                                                            className
+                                                        }
+                                                        onClick={this.getSaveToComputerHandler(
+                                                            downloadProjectCallback
+                                                        )}
+                                                    >
+                                                        <FormattedMessage
+                                                            defaultMessage="Save to your computer"
+                                                            description="Menu bar item for downloading a project to your computer" // eslint-disable-line max-len
+                                                            id="gui.menuBar.downloadToComputer"
+                                                        />
+                                                    </MenuItem>
+                                                )}
+                                            </SB3Downloader>
                                         )}
                                     </MenuSection>
                                 </MenuBarMenu>
                             </div>
                         )}
                         <div
-                            className={classNames(styles.menuBarItem, styles.hoverable, {
-                                [styles.active]: this.props.editMenuOpen
-                            })}
+                            className={classNames(
+                                styles.menuBarItem,
+                                styles.hoverable,
+                                {
+                                    [styles.active]: this.props.editMenuOpen
+                                }
+                            )}
                             onMouseUp={this.props.onClickEdit}
                         >
                             <div className={classNames(styles.editMenu)}>
@@ -523,46 +621,70 @@ class MenuBar extends React.Component {
                                 place={this.props.isRtl ? 'left' : 'right'}
                                 onRequestClose={this.props.onRequestCloseEdit}
                             >
-                                <DeletionRestorer>{(handleRestore, {restorable, deletedItem}) => (
-                                    <MenuItem
-                                        className={classNames({[styles.disabled]: !restorable})}
-                                        onClick={this.handleRestoreOption(handleRestore)}
-                                    >
-                                        {this.restoreOptionMessage(deletedItem)}
-                                    </MenuItem>
-                                )}</DeletionRestorer>
-                                 {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.turboModeButton && 
-                                                window.scratchConfig.menuBar.turboModeButton.show) && (
+                                <DeletionRestorer>
+                                    {(
+                                        handleRestore,
+                                        {restorable, deletedItem}
+                                    ) => (
+                                        <MenuItem
+                                            className={classNames({
+                                                [styles.disabled]: !restorable
+                                            })}
+                                            onClick={this.handleRestoreOption(
+                                                handleRestore
+                                            )}
+                                        >
+                                            {this.restoreOptionMessage(
+                                                deletedItem
+                                            )}
+                                        </MenuItem>
+                                    )}
+                                </DeletionRestorer>
+                                {window.scratchConfig &&
+                                    window.scratchConfig.menuBar && window.scratchConfig.menuBar.turboModeButton &&
+                                    window.scratchConfig.menuBar.turboModeButton.show && (
                                     <MenuSection>
-                                        <TurboMode>{(toggleTurboMode, {turboMode}) => (
-                                            <MenuItem onClick={toggleTurboMode}>
-                                                {turboMode ? (
-                                                    <FormattedMessage
-                                                        defaultMessage="Turn off Turbo Mode"
-                                                        description="Menu bar item for turning off turbo mode"
-                                                        id="gui.menuBar.turboModeOff"
-                                                    />
-                                                ) : (
-                                                    <FormattedMessage
-                                                        defaultMessage="Turn on Turbo Mode"
-                                                        description="Menu bar item for turning on turbo mode"
-                                                        id="gui.menuBar.turboModeOn"
-                                                    />
-                                                )}
-                                            </MenuItem>
-                                        )}</TurboMode>
-                                    
+                                        <TurboMode>
+                                            {(toggleTurboMode, {turboMode}) => (
+                                                <MenuItem
+                                                    onClick={
+                                                        toggleTurboMode
+                                                    }
+                                                >
+                                                    {turboMode ? (
+                                                        <FormattedMessage
+                                                            defaultMessage="Turn off Turbo Mode"
+                                                            description="Menu bar item for turning off turbo mode"
+                                                            id="gui.menuBar.turboModeOff"
+                                                        />
+                                                    ) : (
+                                                        <FormattedMessage
+                                                            defaultMessage="Turn on Turbo Mode"
+                                                            description="Menu bar item for turning on turbo mode"
+                                                            id="gui.menuBar.turboModeOn"
+                                                        />
+                                                    )}
+                                                </MenuItem>
+                                            )}
+                                        </TurboMode>
                                     </MenuSection>
-                                 )}
+                                )}
                             </MenuBarMenu>
                         </div>
                     </div>
                     <Divider className={classNames(styles.divider)} />
-                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton && 
-                                                window.scratchConfig.menuBar.helpButton.show) && (
+                    {window.scratchConfig &&
+                        window.scratchConfig.menuBar &&
+                        window.scratchConfig.menuBar.helpButton &&
+                        window.scratchConfig.menuBar.helpButton.show && (
                         <div
-                            aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
-                            className={classNames(styles.menuBarItem, styles.hoverable)}
+                            aria-label={this.props.intl.formatMessage(
+                                ariaMessages.tutorials
+                            )}
+                            className={classNames(
+                                styles.menuBarItem,
+                                styles.hoverable
+                            )}
                             onClick={this.props.onOpenTipLibrary}
                         >
                             <img
@@ -574,82 +696,104 @@ class MenuBar extends React.Component {
                     )}
                     <Divider className={classNames(styles.divider)} />
                     {this.props.canEditTitle ? (
-                        <div className={classNames(styles.menuBarItem, styles.growable)}>
+                        <div
+                            className={classNames(
+                                styles.menuBarItem,
+                                styles.growable
+                            )}
+                        >
                             <MenuBarItemTooltip
                                 enable
                                 id="title-field"
                             >
                                 <ProjectTitleInput
-                                    className={classNames(styles.titleFieldGrowable)}
+                                    className={classNames(
+                                        styles.titleFieldGrowable
+                                    )}
                                 />
                             </MenuBarItemTooltip>
                         </div>
-                    ) : ((this.props.authorUsername && this.props.authorUsername !== this.props.username) ? (
-                        <AuthorInfo
-                            className={styles.authorInfo}
-                            imageUrl={this.props.authorThumbnailUrl}
-                            projectTitle={this.props.projectTitle}
-                            userId={this.props.authorId}
-                            username={this.props.authorUsername}
-                        />
-                    ) : null)}
+                    ) : this.props.authorUsername &&
+                        this.props.authorUsername !== this.props.username ? (
+                            <AuthorInfo
+                                className={styles.authorInfo}
+                                imageUrl={this.props.authorThumbnailUrl}
+                                projectTitle={this.props.projectTitle}
+                                userId={this.props.authorId}
+                                username={this.props.authorUsername}
+                            />
+                        ) : null}
                     <div className={classNames(styles.menuBarItem)}>
-                        {
-                            (window.scratchConfig && window.scratchConfig.shareButton && window.scratchConfig.shareButton.show) && (
-                                <ProjectWatcher onDoneUpdating={this.props.onSeeCommunity}>
-                                    {
-                                        waitForUpdate => (
-                                            <ShareButton
-                                                className={styles.menuBarButton}
-                                                isShared={this.props.isShared}
-                                                /* eslint-disable react/jsx-no-bind */
-                                                onClick={() => {
-                                                    window.scratchConfig.shareButton.handleClick()
-                                                    // this.handleClickShare(waitForUpdate);
-                                                }}
-                                                buttonName = {window.scratchConfig.shareButton.buttonName}
-                                                /* eslint-enable react/jsx-no-bind */
-                                            />
-                                        )
-                                    }
-                                </ProjectWatcher>
-                            )
-                        }
+                        {window.scratchConfig &&
+                            window.scratchConfig.shareButton &&
+                            window.scratchConfig.shareButton.show && (
+                            <ProjectWatcher
+                                onDoneUpdating={this.props.onSeeCommunity}
+                            >
+                                {() => (
+                                    <ShareButton
+                                        className={styles.menuBarButton}
+                                        isShared={this.props.isShared}
+                                        /* eslint-disable react/jsx-no-bind */
+                                        onClick={() => {
+                                            window.scratchConfig.shareButton.handleClick();
+                                            // this.handleClickShare(waitForUpdate);
+                                        }}
+                                        buttonName={
+                                            window.scratchConfig.shareButton
+                                                .buttonName
+                                        }
+                                    />
+                                )}
+                            </ProjectWatcher>
+                        )}
                         {this.props.canRemix ? remixButton : []}
                     </div>
-                    
+
                     <div className={classNames(styles.menuBarItem)}>
-                    {
-                    (window.scratchConfig && window.scratchConfig.profileButton && window.scratchConfig.profileButton.show) && (<CustomButton
-                        className={styles.menuBarButton}
-                        onClick = {
-                            () => {
-                                window.scratchConfig.profileButton.handleClick();
-                            }
-                        }
-                        buttonName = {window.scratchConfig.profileButton.buttonName}
-                    />
-                    )}
-                    {
-                        (window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.customButtons && window.scratchConfig.menuBar.customButtons.length>0) && (
-                            window.scratchConfig.menuBar.customButtons.map(item=> {
-                                if(item.show){
-                                    return <CustomButton
-                                        key={item.buttonName}
-                                        className={styles.menuBarButton}
-                                        style={item.style || {}}
-                                        onClick = {item.handleClick}
-                                        buttonName = {item.buttonName}
-                                    />
-                                }else{
-                                    return ""
+                        {window.scratchConfig &&
+                            window.scratchConfig.profileButton &&
+                            window.scratchConfig.profileButton.show && (
+                            <CustomButton
+                                className={styles.menuBarButton}
+                                onClick={() => {
+                                    window.scratchConfig.profileButton.handleClick();
+                                }}
+                                buttonName={
+                                    window.scratchConfig.profileButton
+                                        .buttonName
                                 }
-                             })
-                        )
-                    }
+                            />
+                        )}
+                        {window.scratchConfig &&
+                            window.scratchConfig.menuBar &&
+                            window.scratchConfig.menuBar.customButtons &&
+                            window.scratchConfig.menuBar.customButtons.length >
+                            0 &&
+                            window.scratchConfig.menuBar.customButtons.map(
+                                item => {
+                                    if (item.show) {
+                                        return (
+                                            <CustomButton
+                                                key={item.buttonName}
+                                                className={styles.menuBarButton}
+                                                style={item.style || {}}
+                                                onClick={item.handleClick}
+                                                buttonName={item.buttonName}
+                                            />
+                                        );
+                                    }
+                                    return '';
+                                }
+                            )}
                     </div>
-                    <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
-                        {/*this.props.enableCommunity ? (
+                    <div
+                        className={classNames(
+                            styles.menuBarItem,
+                            styles.communityButtonWrapper
+                        )}
+                    >
+                        {/* this.props.enableCommunity ? (
                             (this.props.isShowingProject || this.props.isUpdating) && (
                                 <ProjectWatcher onDoneUpdating={this.props.onSeeCommunity}>
                                     {
@@ -675,18 +819,25 @@ class MenuBar extends React.Component {
                 {/* show the proper UI in the account menu, given whether the user is
                 logged in, and whether a session is available to log in with */}
                 {
-                <div className={styles.accountInfoGroup}>
-                    <div className={styles.menuBarItem}>
-                        {this.props.canSave && (
-                            <SaveStatus />
-                        )}
-                    </div>
-                    {
-                        // ************ user is logged in ************
-                        <React.Fragment>
-                            {
-                                (window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.myStuff.show) && (
-                                    <a href={window.scratchConfig.menuBar.myStuff.url} target="_blank">
+                    <div className={styles.accountInfoGroup}>
+                        <div className={styles.menuBarItem}>
+                            {this.props.canSave && <SaveStatus />}
+                        </div>
+                        {
+                            // ************ user is logged in ************
+                            <React.Fragment>
+                                {window.scratchConfig &&
+                                window.scratchConfig.menuBar &&
+                                window.scratchConfig.menuBar.myStuff
+                                    .show && (
+                                    <a
+                                        href={
+                                            window.scratchConfig.menuBar
+                                                .myStuff.url
+                                        }
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
                                         <div
                                             className={classNames(
                                                 styles.menuBarItem,
@@ -695,34 +846,45 @@ class MenuBar extends React.Component {
                                             )}
                                         >
                                             <img
-                                                className={styles.mystuffIcon}
+                                                className={
+                                                    styles.mystuffIcon
+                                                }
                                                 src={mystuffIcon}
                                             />
                                         </div>
                                     </a>
-                                )
-                            }{
-                                (window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.userAvatar.show) && (
+                                )}
+                                {window.scratchConfig &&
+                                window.scratchConfig.menuBar &&
+                                window.scratchConfig.menuBar.userAvatar
+                                    .show && (
                                     <AccountNav
                                         className={classNames(
                                             styles.menuBarItem,
                                             styles.hoverable,
-                                            {[styles.active]: this.props.accountMenuOpen}
+                                            {
+                                                [styles.active]:
+                                                        this.props
+                                                            .accountMenuOpen
+                                            }
                                         )}
-                                        thumbnailUrl={this.props.avatar}
+                                        thumbnailUrl={window.scratchConfig.menuBar.userAvatar.avatar || profileIcon}
                                         username={this.props.username}
                                         isOpen={this.props.accountMenuOpen}
                                         isRtl={this.props.isRtl}
-                                        menuBarMenuClassName={classNames(styles.menuBarMenu)}
-                                        onClick={this.props.onAvatarClick}
-                                        onClose={this.props.onRequestCloseAccount}
+                                        menuBarMenuClassName={classNames(
+                                            styles.menuBarMenu
+                                        )}
+                                        onClick={() => window.scratchConfig.menuBar.userAvatar.handleClick()}
+                                        onClose={
+                                            this.props.onRequestCloseAccount
+                                        }
                                         onLogOut={this.props.onLogOut}
                                     />
-                                )
-                            }
-                        </React.Fragment>
-                      }
-                </div>
+                                )}
+                            </React.Fragment>
+                        }
+                    </div>
                 }
             </Box>
         );
@@ -730,6 +892,7 @@ class MenuBar extends React.Component {
 }
 
 MenuBar.propTypes = {
+    aboutMenuOpen: PropTypes.bool,
     accountMenuOpen: PropTypes.bool,
     authorId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
     authorThumbnailUrl: PropTypes.string,
@@ -759,7 +922,8 @@ MenuBar.propTypes = {
     logo: PropTypes.string,
     onClickAbout: PropTypes.oneOfType([
         PropTypes.func, // button mode: call this callback when the About button is clicked
-        PropTypes.arrayOf( // menu mode: list of items in the About menu
+        PropTypes.arrayOf(
+            // menu mode: list of items in the About menu
             PropTypes.shape({
                 title: PropTypes.string, // text for the menu item
                 onClick: PropTypes.func // call this callback when the menu item is clicked
@@ -803,12 +967,13 @@ MenuBar.propTypes = {
 
 MenuBar.defaultProps = {
     logo: scratchLogo,
-    onShare: () => {}
+    onShare: () => { }
 };
 
 const mapStateToProps = (state, ownProps) => {
     const loadingState = state.scratchGui.projectState.loadingState;
-    const user = state.session && state.session.session && state.session.session.user;
+    const user =
+        state.session && state.session.session && state.session.session.user;
     return {
         aboutMenuOpen: aboutMenuOpen(state),
         accountMenuOpen: accountMenuOpen(state),
@@ -821,12 +986,13 @@ const mapStateToProps = (state, ownProps) => {
         locale: state.locales.locale,
         loginMenuOpen: loginMenuOpen(state),
         projectTitle: state.scratchGui.projectTitle,
-        sessionExists: state.session && typeof state.session.session !== 'undefined',
+        sessionExists:
+            state.session && typeof state.session.session !== 'undefined',
         username: window.scratchConfig.menuBar.userAvatar.username || '',
-        avatar: window.scratchConfig.menuBar.userAvatar.avatar || null,
-        onAvatarClick: window.scratchConfig.menuBar.userAvatar.handleClick,
-        userOwnsProject: ownProps.authorUsername && user &&
-            (ownProps.authorUsername === user.username),
+        userOwnsProject:
+            ownProps.authorUsername &&
+            user &&
+            ownProps.authorUsername === user.username,
         vm: state.scratchGui.vm
     };
 };
@@ -834,8 +1000,8 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = dispatch => ({
     autoUpdateProject: () => dispatch(autoUpdateProject()),
     onOpenTipLibrary: () => {
-        if(window.scratchConfig.menuBar.helpButton.handleBefore()){
-            dispatch(openTipsLibrary())
+        if (window.scratchConfig.menuBar.helpButton.handleBefore()) {
+            dispatch(openTipsLibrary());
         }
     },
     onClickAccount: () => dispatch(openAccountMenu()),
@@ -860,8 +1026,5 @@ const mapDispatchToProps = dispatch => ({
 export default compose(
     injectIntl,
     MenuBarHOC,
-    connect(
-        mapStateToProps,
-        mapDispatchToProps
-    )
+    connect(mapStateToProps, mapDispatchToProps)
 )(MenuBar);
