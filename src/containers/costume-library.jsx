@@ -6,7 +6,7 @@ import VM from 'scratch-vm';
 
 import spriteTags from '../lib/libraries/sprite-tags';
 import LibraryComponent from '../components/library/library.jsx';
-import {getCostumeLibrary} from '../lib/assets-api';
+import {getCostumeLibrary, getCustomCostumeLibrary} from '../lib/assets-api';
 
 const messages = defineMessages({
     libraryTitle: {
@@ -25,36 +25,51 @@ class CostumeLibrary extends React.PureComponent {
         ]);
         this.state = {
             data: [],
-            haveData:false
+            haveData: false
         };
     }
     componentWillMount (){
-        let that = this
-        document.addEventListener("pushCostumesLibrary",function(e){
-            console.log("pushCostumesLibrary");
-            let data = e.detail.data.concat(that.state.data)
+        const that = this;
+        document.addEventListener('pushCostumesLibrary', e => {
+            console.log('pushCostumesLibrary');
+            const data = e.detail.data.concat(that.state.data);
             that.setState({
-                data:data,
-                haveData:true
-            })
-        })
-        window.scratch.pushCostumesLibrary = (data)=>{
-            var event = new CustomEvent('pushCostumesLibrary', {"detail": {data: data}});
+                data: data,
+                haveData: true
+            });
+        });
+        window.scratch.pushCostumesLibrary = data => {
+            const event = new CustomEvent('pushCostumesLibrary', {detail: {data: data}});
             document.dispatchEvent(event);
         };
 
-        if(window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.handleBeforeCostumesLibraryOpen){
-           if(!window.scratchConfig.assets.handleBeforeCostumesLibraryOpen()){
+        if (window.scratchConfig && window.scratchConfig.assets &&
+            window.scratchConfig.assets.handleBeforeCostumesLibraryOpen){
+            if (!window.scratchConfig.assets.handleBeforeCostumesLibraryOpen()){
                 return;
-           }
+            }
         }
-        getCostumeLibrary().then(data=>{
-            data = data.concat(this.state.data)
+        getCostumeLibrary().then(data => {
+            data = data.concat(this.state.data);
             this.setState({
-                data:data,
-                haveData:true
-            })
-        })
+                data: data,
+                haveData: true
+            });
+        });
+        // 在这里设置localStorage图片的真实url
+        getCustomCostumeLibrary.then(data => {
+            if (Array.isArray(data)){
+                data.forEach(asset => {
+                    window.localStorage.setItem(asset.md5ext,
+                        `${window.__CONFIG.MINIO_URL}/${window.__CONFIG.ASSET_PREFIX}${asset.md5ext}`);
+                });
+                data = data.concat(this.state.data);
+                this.setState({
+                    data: data,
+                    haveData: true
+                });
+            }
+        });
     }
     handleItemSelected (item) {
         const vmCostume = {
@@ -67,7 +82,7 @@ class CostumeLibrary extends React.PureComponent {
         this.props.vm.addCostumeFromLibrary(item.md5ext, vmCostume);
     }
     render () {
-        return !this.state.haveData?"": (
+        return this.state.haveData ? (
             <LibraryComponent
                 data={this.state.data}
                 id="costumeLibrary"
@@ -76,7 +91,7 @@ class CostumeLibrary extends React.PureComponent {
                 onItemSelected={this.handleItemSelected}
                 onRequestClose={this.props.onRequestClose}
             />
-        );
+        ) : '';
     }
 }
 

@@ -167,6 +167,20 @@ const getCustomSoundLibrary = () =>
             return reject(new Error(body.msg));
         }, reject);
     });
+    
+// 获取自定义造型库
+const getCustomCostumeLibrary = () =>
+    new Promise((resolve, reject) => {
+        customApi('GET', '/costumes').then(body => {
+            if (body.hasOwnProperty('success') && body.success) {
+                const data = body.data;
+                return resolve(
+                    Array.isArray(data) ? data : JSON.parse(data)
+                );
+            }
+            return reject(new Error(body.msg));
+        }, reject);
+    });
 
 export {
     getSpriteLibrary,
@@ -175,5 +189,6 @@ export {
     getSoundLibrary,
     getCustomBackdropLibrary,
     getCustomSpriteLibrary,
-    getCustomSoundLibrary
+    getCustomSoundLibrary,
+    getCustomCostumeLibrary
 };
