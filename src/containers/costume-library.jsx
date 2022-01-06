@@ -57,7 +57,7 @@ class CostumeLibrary extends React.PureComponent {
             });
         });
         // 在这里设置localStorage图片的真实url
-        getCustomCostumeLibrary.then(data => {
+        getCustomCostumeLibrary().then(data => {
             if (Array.isArray(data)){
                 data.forEach(asset => {
                     window.localStorage.setItem(asset.md5ext,
