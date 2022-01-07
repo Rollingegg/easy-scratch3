@@ -145,26 +145,32 @@ module.exports = [
             new HtmlWebpackPlugin({
                 chunks: ['lib.min', 'gui'],
                 template: 'src/playground/index.ejs',
-                title: 'EasyScratch 3.0',
+                title: 'Scratch 3.0: 在线编程',
                 sentryConfig: process.env.SENTRY_CONFIG ? '"' + process.env.SENTRY_CONFIG + '"' : null
             }),
             new HtmlWebpackPlugin({
                 chunks: ['lib.min', 'blocksonly'],
                 template: 'src/playground/index.ejs',
                 filename: 'blocks-only.html',
-                title: 'EasyScratch 3.0: Blocks Only Example'
+                title: 'Scratch 3.0: Blocks Only Example'
             }),
             new HtmlWebpackPlugin({
                 chunks: ['lib.min', 'compatibilitytesting'],
                 template: 'src/playground/index.ejs',
                 filename: 'compatibility-testing.html',
-                title: 'EasyScratch 3.0: Compatibility Testing'
+                title: 'Scratch 3.0: Compatibility Testing'
             }),
             new HtmlWebpackPlugin({
                 chunks: ['lib.min', 'player'],
                 template: 'src/playground/player.ejs',
                 filename: 'player.html',
-                title: 'EasyScratch 3.0: Player Example'
+                title: 'Scratch 3.0: 作品预览'
+            }),
+            new HtmlWebpackPlugin({
+                chunks: ['lib.min', 'player'],
+                template: 'src/playground/scratch-mobile.ejs',
+                filename: 'scratch-mobile.html',
+                title: 'Scratch 3.0: 作品展示'
             }),
             new CopyWebpackPlugin([{
                 from: 'static',

@@ -15,41 +15,56 @@
   </script>
   <!-- /Sentry -->
   <% } %>
+  <script src="./js/jquery.min.js"></script>
+  <script src="./js/common.js"></script>
   <script>
+    const pid = urlParams("pid")
+    const pName = urlParams("pName") || window.localStorage.getItem("PROJECT_NAME")
     window.scratchConfig = {
-      stageArea:{
-        scale: window.innerWidth / 480, //自适应屏幕尺寸
+      stageArea: {
+        scale: window.innerWidth / 480,
         width: 480,
         height: 360,
         showControl: true, //是否显示舞台区控制按钮
-        fullscreenButton:{ //全屏按钮
+        fullscreen: true,
+        fullscreenButton: { //全屏按钮
           show: true,
-          handleBeforeSetStageUnFull(){ //退出全屏前的操作
+          handleBeforeSetStageUnFull() { //退出全屏前的操作
             return true
           },
-          handleBeforeSetStageFull(){ //全屏前的操作
+          handleBeforeSetStageFull() { //全屏前的操作
             return true
           }
         },
-        startButton:{ //开始按钮
+        startButton: { //开始按钮
           show: true,
-          handleBeforeStart(){ //开始前的操作
+          handleBeforeStart() { //开始前的操作
             return true
           }
         },
-        stopButton:{ // 停止按钮
+        stopButton: { // 停止按钮
           show: true,
-          handleBeforeStop(){ //停止前的操作
+          handleBeforeStop() { //停止前的操作
             return true
           }
         }
       },
       handleVmInitialized: (vm) => {
-        window.vm = vm        
+        window.vm = vm
+        console.log("VM初始化完毕")
+
       },
-      handleProjectLoaded:() => {
+      handleProjectLoaded: () => {
+        console.log("作品载入完毕")
+
       },
-      handleDefaultProjectLoaded:() => {
+      handleDefaultProjectLoaded: () => {
+        //默认作品加载完毕，一般在这里控制项目加载
+        getPlayerInfo(pid, function (info) {
+          window.scratch.loadProject(info, () => {
+            window.scratch.setProjectName(pName)
+          })
+        })
       },
       //默认项目地址,不需要修请删除本配置项
       defaultProjectURL: "./static/project.sb3",
@@ -58,9 +73,7 @@
 </head>
 
 <body>
-  <div id="scratch">
-    <p>Loading……</p>
-  </div>
+  <div id="scratch"></div>
 </body>
 <script>
 
