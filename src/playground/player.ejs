@@ -20,6 +20,7 @@
   <script>
     const pid = urlParams("pid")
     const pName = urlParams("pName") || window.localStorage.getItem("PROJECT_NAME")
+    const url = urlParams("url")
     window.scratchConfig = {
       stageArea: {
         scale: window.innerWidth / 480,
@@ -60,11 +61,17 @@
       },
       handleDefaultProjectLoaded: () => {
         //默认作品加载完毕，一般在这里控制项目加载
-        getPlayerInfo(pid, function (info) {
-          window.scratch.loadProject(info, () => {
+        if(pid>0){
+          getPlayerInfo(pid, function (info) {
+            window.scratch.loadProject(info, () => {
+              window.scratch.setProjectName(pName)
+            })
+          })
+        }else if (url) {
+          window.scratch.loadProject(url, () => {
             window.scratch.setProjectName(pName)
           })
-        })
+        }
       },
       //默认项目地址,不需要修请删除本配置项
       defaultProjectURL: "./static/project.sb3",
